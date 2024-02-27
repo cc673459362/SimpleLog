@@ -1,0 +1,5 @@
+# BEGIN: /Users/jiafengchen/Desktop/log/.gitignore
+.vscode/
+# END: /Users/jiafengchen/Desktop/log/.gitignore
+build/
+/example/*build/
