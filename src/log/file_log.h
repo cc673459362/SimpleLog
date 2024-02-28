@@ -8,4 +8,4 @@ void clean();
 
 extern int write(char *data, int len);
 
-#endif // FILE_LOG_H_
+#endif  // FILE_LOG_H_

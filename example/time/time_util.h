@@ -1,10 +1,3 @@
-/*
- * @Author: jiafengchen
- * @Date: 2024-02-27 15:29:09
- * @LastEditTime: 2024-02-27 15:29:40
- * @Description: 
- * Copyright (c) 2024 by Tencent Inc, All Rights Reserved. 
- */
 #ifndef TIME_UTILS_H_
 #define TIME_UTILS_H_
 

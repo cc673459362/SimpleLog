@@ -1,25 +1,28 @@
 #include "file_log.h"
-#include <time.h>
+
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+
 #include <iostream>
 #include <string>
-#if defined (WINDOWS) || defined(_WINDOWS) || defined(WIN32)
-#  include <direct.h>  // for mkdir rmdir
-#  include <io.h>      // for access
+
+#if defined(WINDOWS) || defined(_WINDOWS) || defined(WIN32)
+#include <direct.h>  // for mkdir rmdir
+#include <io.h>      // for access
 #else
-#  include <dirent.h>    //for DIR remove
-#  include <sys/stat.h>  //for access
-#  include <sys/types.h>
-#  include <unistd.h>  //for mkdir rmdir
+#include <dirent.h>    //for DIR remove
+#include <sys/stat.h>  //for access
+#include <sys/types.h>
+#include <unistd.h>  //for mkdir rmdir
 #endif
 
-#if defined (WINDOWS) || defined(_WINDOWS) || defined(WIN32)
-#  define ACCESS _access
-#  define MKDIR(a) _mkdir(a)
+#if defined(WINDOWS) || defined(_WINDOWS) || defined(WIN32)
+#define ACCESS _access
+#define MKDIR(a) _mkdir(a)
 #else
-#  define ACCESS access
-#  define MKDIR(a) mkdir(a, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
+#define ACCESS access
+#define MKDIR(a) mkdir(a, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
 #endif
 
 constexpr int k_maxPath = 260;
@@ -75,9 +78,9 @@ bool init(const std::string& dirPath) {
   time(&rawtime);
   ptminfo = localtime(&rawtime);
   char time_s[k_maxPath] = {0};
-  snprintf(time_s, k_maxPath, "%02d%02d%02d%02d%02d%02d", ptminfo->tm_year + 1900,
-           ptminfo->tm_mon + 1, ptminfo->tm_mday, ptminfo->tm_hour, ptminfo->tm_min,
-           ptminfo->tm_sec);
+  snprintf(time_s, k_maxPath, "%02d%02d%02d%02d%02d%02d",
+           ptminfo->tm_year + 1900, ptminfo->tm_mon + 1, ptminfo->tm_mday,
+           ptminfo->tm_hour, ptminfo->tm_min, ptminfo->tm_sec);
 
   filePath.append(time_s);
   filePath.append(".log");

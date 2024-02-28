@@ -1,15 +1,12 @@
-/**
- *  Copyright 2020 Tencent Inc.  All rights reserved.
- *  @Author: penciljiang@tencent.com
- *  @Date: 2020/07/09
- */
 #include "log/log.h"
+
 #include "log/file_log.h"
 #include "time/time_util.h"
-#if defined (WINDOWS) || defined(_WINDOWS) || defined(WIN32)
+
+#if defined(WINDOWS) || defined(_WINDOWS) || defined(WIN32)
 #include <ws2tcpip.h>
 #else
-#include <pthread.h> // pthread_self()
+#include <pthread.h>  // pthread_self()
 #endif
 
 #ifdef DEBUG
@@ -24,39 +21,25 @@ bool s_traceFile = false;
 bool s_traceTime = false;
 static LogCallBack g_logCallback = nullptr;
 
-void CallbackLog(int prio, const char* buf) {
-    if (g_logCallback != nullptr) {
-        g_logCallback(prio, buf);
-    }
+void CallbackLog(int prio, const char *buf) {
+  if (g_logCallback != nullptr) {
+    g_logCallback(prio, buf);
+  }
 }
 
-void SET_LOG_LEVEL(LogLevel level) {
-  s_logLevel = level;
-}
+void SET_LOG_LEVEL(LogLevel level) { s_logLevel = level; }
 
-void SET_FILE_LOG(const char *dir) {
-  init(dir);
-}
+void SET_FILE_LOG(const char *dir) { init(dir); }
 
-void CLOSE_FILE_LOG() {
-  clean();
-}
+void CLOSE_FILE_LOG() { clean(); }
 
-void SET_TRACE_LOG(bool traceOpen) {
-  s_traceOpen = traceOpen;
-}
+void SET_TRACE_LOG(bool traceOpen) { s_traceOpen = traceOpen; }
 
-void SET_TRACE_FILE(bool traceFile) {
-  s_traceFile = traceFile;
-}
+void SET_TRACE_FILE(bool traceFile) { s_traceFile = traceFile; }
 
-void SET_TRACE_TIME(bool traceTime) {
-  s_traceTime = traceTime;
-}
+void SET_TRACE_TIME(bool traceTime) { s_traceTime = traceTime; }
 
-void SET_LOG_CALLBACK(LogCallBack LogCallback) {
-  g_logCallback = LogCallback;
-}
+void SET_LOG_CALLBACK(LogCallBack LogCallback) { g_logCallback = LogCallback; }
 
 void printProc(int level, char *log, int len) {
   if (g_logCallback != nullptr) {
@@ -66,18 +49,19 @@ void printProc(int level, char *log, int len) {
 #ifdef DEBUG
   printf("%s", log);
 #endif
-#if defined (WINDOWS) || defined(_WINDOWS) || defined(WIN32)
+#if defined(WINDOWS) || defined(_WINDOWS) || defined(WIN32)
 #ifdef _UNICODE
   if (g_logCallback == NULL) {
-      const int maxWideCharLogSize = 512;
-      TCHAR sOut[maxWideCharLogSize] = {0};
-      if (MultiByteToWideChar(CP_ACP, 0, log, len, sOut, maxWideCharLogSize) > 0) {
-          OutputDebugString(sOut);
-      }
+    const int maxWideCharLogSize = 512;
+    TCHAR sOut[maxWideCharLogSize] = {0};
+    if (MultiByteToWideChar(CP_ACP, 0, log, len, sOut, maxWideCharLogSize) >
+        0) {
+      OutputDebugString(sOut);
+    }
   }
 #else
   OutputDebugString(log);
-#endif // _UNICODE    
+#endif  // _UNICODE
 #endif
 #ifndef ANDROID
   write(log, len);
@@ -160,25 +144,21 @@ void PUSH_TO_LOG_QUEUE(LogLevel level, const char *fmt, ...) {
   printProc(level, line, offset);
 }
 
-#if defined (WINDOWS) || defined(_WINDOWS) || defined(WIN32)
+#if defined(WINDOWS) || defined(_WINDOWS) || defined(WIN32)
 unsigned long long GET_THREAD_ID() {
-    std::ostringstream oss;
-    oss << std::this_thread::get_id();
-    std::string stid = oss.str();
-    return std::stoull(stid);
+  std::ostringstream oss;
+  oss << std::this_thread::get_id();
+  std::string stid = oss.str();
+  return std::stoull(stid);
 }
 #elif defined(__APPLE__)
-pid_t GET_THREAD_ID() {
-  return pthread_mach_thread_np(pthread_self());
-}
+pid_t GET_THREAD_ID() { return pthread_mach_thread_np(pthread_self()); }
 #else
-pid_t GET_THREAD_ID() {
-    return pthread_self();
-}
+pid_t GET_THREAD_ID() { return pthread_self(); }
 #endif
 
 const int kPrintHexLen = 256;
-std::string stringToHex(const char * str, const int len, std::string separator) {
+std::string stringToHex(const char *str, const int len, std::string separator) {
   const std::string hex = "0123456789ABCDEF";
   std::stringstream ss;
   int hexLen = len;
@@ -186,13 +166,13 @@ std::string stringToHex(const char * str, const int len, std::string separator) 
     hexLen = kPrintHexLen;
   }
   for (std::string::size_type i = 0; i < hexLen; ++i) {
-    ss << hex[(unsigned char) str[i] >> 4] << hex[(unsigned char) str[i] & 0xf]
+    ss << hex[(unsigned char)str[i] >> 4] << hex[(unsigned char)str[i] & 0xf]
        << separator;
   }
   return ss.str();
 }
 
-void __printHex(const char* tag, char* buff, int buff_len) {
+void __printHex(const char *tag, char *buff, int buff_len) {
   if (buff_len > kMaxLen) {
     buff_len = kMaxLen;
   }
@@ -207,4 +187,3 @@ void __printHex(const char* tag, char* buff, int buff_len) {
   }
   DEBUG_LOG_V("%s:%s", tag, str);
 }
-
