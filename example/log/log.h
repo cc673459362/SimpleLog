@@ -1,3 +1,8 @@
+/*
+ * @Author: jiafengchen
+ * @Date: 2024-02-28 15:19:04
+ * @Description: 
+ */
 
 #ifndef LOG_H_
 #define LOG_H_
@@ -36,11 +41,6 @@ extern void SET_TRACE_LOG(bool traceOpen);
 extern void SET_TRACE_FILE(bool traceFile);
 extern void SET_TRACE_TIME(bool traceTime);
 extern void SET_LOG_CALLBACK(LogCallBack LogCallback);
-
-// tansform log to Hex
-extern std::string stringToHex(const char* str, const int len,
-                               std::string separator = "");
-extern void __printHex(const char* tag, char* buff, int buff_len);
 
 #if defined(WINDOWS) || defined(_WINDOWS) || defined(WIN32)
 extern unsigned long long GET_THREAD_ID();

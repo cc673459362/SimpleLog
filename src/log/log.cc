@@ -41,32 +41,18 @@ void SET_TRACE_TIME(bool traceTime) { s_traceTime = traceTime; }
 
 void SET_LOG_CALLBACK(LogCallBack LogCallback) { g_logCallback = LogCallback; }
 
-void printProc(int level, char *log, int len) {
-  if (g_logCallback != nullptr) {
-    CallbackLog(level, log);
-    return;
-  }
-#ifdef DEBUG
-  printf("%s", log);
-#endif
 #if defined(WINDOWS) || defined(_WINDOWS) || defined(WIN32)
-#ifdef _UNICODE
-  if (g_logCallback == NULL) {
-    const int maxWideCharLogSize = 512;
-    TCHAR sOut[maxWideCharLogSize] = {0};
-    if (MultiByteToWideChar(CP_ACP, 0, log, len, sOut, maxWideCharLogSize) >
-        0) {
-      OutputDebugString(sOut);
-    }
-  }
-#else
-  OutputDebugString(log);
-#endif  // _UNICODE
-#endif
-#ifndef ANDROID
-  write(log, len);
-#endif
+unsigned long long GET_THREAD_ID() {
+  std::ostringstream oss;
+  oss << std::this_thread::get_id();
+  std::string stid = oss.str();
+  return std::stoull(stid);
 }
+#elif defined(__APPLE__)
+pid_t GET_THREAD_ID() { return pthread_mach_thread_np(pthread_self()); }
+#else
+pid_t GET_THREAD_ID() { return pthread_self(); }
+#endif
 
 inline static int appendLogTime(char *buf, int bufLen) {
   time_t tt = getLocalTimeS();
@@ -144,46 +130,29 @@ void PUSH_TO_LOG_QUEUE(LogLevel level, const char *fmt, ...) {
   printProc(level, line, offset);
 }
 
-#if defined(WINDOWS) || defined(_WINDOWS) || defined(WIN32)
-unsigned long long GET_THREAD_ID() {
-  std::ostringstream oss;
-  oss << std::this_thread::get_id();
-  std::string stid = oss.str();
-  return std::stoull(stid);
-}
-#elif defined(__APPLE__)
-pid_t GET_THREAD_ID() { return pthread_mach_thread_np(pthread_self()); }
-#else
-pid_t GET_THREAD_ID() { return pthread_self(); }
+void printProc(int level, char *log, int len) {
+  if (g_logCallback != nullptr) {
+    CallbackLog(level, log);
+    return;
+  }
+#ifdef DEBUG
+  printf("%s", log);
 #endif
-
-const int kPrintHexLen = 256;
-std::string stringToHex(const char *str, const int len, std::string separator) {
-  const std::string hex = "0123456789ABCDEF";
-  std::stringstream ss;
-  int hexLen = len;
-  if (hexLen > kPrintHexLen) {
-    hexLen = kPrintHexLen;
-  }
-  for (std::string::size_type i = 0; i < hexLen; ++i) {
-    ss << hex[(unsigned char)str[i] >> 4] << hex[(unsigned char)str[i] & 0xf]
-       << separator;
-  }
-  return ss.str();
-}
-
-void __printHex(const char *tag, char *buff, int buff_len) {
-  if (buff_len > kMaxLen) {
-    buff_len = kMaxLen;
-  }
-  char str[kMaxLen];
-  int ret = 0;
-  memset(str, '\0', kMaxLen);
-  for (int i = 0; i < buff_len; i++) {
-    if (ret >= kMaxLen) {
-      break;
+#if defined(WINDOWS) || defined(_WINDOWS) || defined(WIN32)
+#ifdef _UNICODE
+  if (g_logCallback == NULL) {
+    const int maxWideCharLogSize = 512;
+    TCHAR sOut[maxWideCharLogSize] = {0};
+    if (MultiByteToWideChar(CP_ACP, 0, log, len, sOut, maxWideCharLogSize) >
+        0) {
+      OutputDebugString(sOut);
     }
-    ret += snprintf(str + ret, kMaxLen - ret, "%02x", (uint8_t)buff[i]);
   }
-  DEBUG_LOG_V("%s:%s", tag, str);
+#else
+  OutputDebugString(log);
+#endif  // _UNICODE
+#endif
+#ifndef ANDROID
+  write(log, len);
+#endif
 }
